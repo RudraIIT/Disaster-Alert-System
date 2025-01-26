@@ -1,37 +1,50 @@
+"use client"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { AlertTriangle, CloudRain, Flame, Waves } from "lucide-react"
+import { useEffect, useState } from "react"
+import axios from 'axios'
 
-const alerts = [
-  {
-    id: 1,
-    title: "Flash Flood Warning",
-    description: "Heavy rainfall causing flash floods in downtown area. Seek higher ground immediately.",
-    severity: "high",
-    type: "flood",
-    time: "2 minutes ago",
-    region: "Downtown",
-  },
-  {
-    id: 2,
-    title: "Severe Thunderstorm",
-    description: "Strong winds and lightning expected. Stay indoors and away from windows.",
-    severity: "medium",
-    type: "weather",
-    time: "10 minutes ago",
-    region: "Metropolitan Area",
-  },
-  {
-    id: 3,
-    title: "Wildfire Alert",
-    description: "Rapidly spreading wildfire in northern forest area. Evacuation orders in effect.",
-    severity: "high",
-    type: "fire",
-    time: "15 minutes ago",
-    region: "North Forest",
-  },
-]
+// const alerts = [
+//   {
+//     id: 1,
+//     title: "Flash Flood Warning",
+//     description: "Heavy rainfall causing flash floods in downtown area. Seek higher ground immediately.",
+//     severity: "high",
+//     type: "flood",
+//     time: "2 minutes ago",
+//     region: "Downtown",
+//   },
+//   {
+//     id: 2,
+//     title: "Severe Thunderstorm",
+//     description: "Strong winds and lightning expected. Stay indoors and away from windows.",
+//     severity: "medium",
+//     type: "weather",
+//     time: "10 minutes ago",
+//     region: "Metropolitan Area",
+//   },
+//   {
+//     id: 3,
+//     title: "Wildfire Alert",
+//     description: "Rapidly spreading wildfire in northern forest area. Evacuation orders in effect.",
+//     severity: "high",
+//     type: "fire",
+//     time: "15 minutes ago",
+//     region: "North Forest",
+//   },
+// ]
+
+type Alert = {
+  id: number
+  title: string
+  description: string
+  severity: string
+  type: string
+  time: string
+  region: string
+}
 
 const getAlertIcon = (type: string) => {
   switch (type) {
@@ -58,15 +71,29 @@ const getSeverityColor = (severity: string) => {
 }
 
 export default function AlertFeed() {
+  const [alerts_arr, setAlerts_arr] = useState<Alert[]>([]);
+  useEffect(() => {
+    const getNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/notifications');
+        setAlerts_arr(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    getNotifications();
+  },[alerts_arr])
+
   return (
     <div className="rounded-lg border bg-card">
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Active Alerts</h2>
-        <Badge variant="outline">{alerts.length} Active</Badge>
+        <Badge variant="outline">{alerts_arr.length} Active</Badge>
       </div>
       <ScrollArea className="h-[600px]">
         <div className="p-4 space-y-4">
-          {alerts.map((alert) => (
+          {alerts_arr.map((alert) => (
             <Alert key={alert.id} className="flex items-start space-x-4">
               <div className={`p-2 rounded-full ${getSeverityColor(alert.severity)}`}>{getAlertIcon(alert.type)}</div>
               <div className="flex-1 space-y-1">

@@ -1,5 +1,6 @@
 import './globals.css'
 import { Inter } from "next/font/google"
+import { SocketProvider } from '@/context/SocketContext'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,7 +19,11 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head> */}
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <SocketProvider>
+          {children}
+        </SocketProvider>
+      </body>
     </html>
   )
 }

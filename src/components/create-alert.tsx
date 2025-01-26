@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { useSocketContext } from "@/context/SocketContext"
 
 const formSchema = z.object({
   title: z.string().min(2).max(100),
@@ -29,8 +30,12 @@ export default function CreateAlert() {
     },
   })
 
+  const { socket } = useSocketContext()
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    if(socket) {
+      socket.emit('send_notification', values)
+    }
   }
 
   return (
