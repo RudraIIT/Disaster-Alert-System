@@ -15,7 +15,7 @@ export default function LoginPage() {
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email and password to access the dashboard</CardDescription>
+          <CardDescription>Enter your Username and password to access the dashboard</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm />

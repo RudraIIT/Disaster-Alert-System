@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import Cookies from "js-cookie"
 
 const formSchema = z
   .object({
@@ -32,6 +33,15 @@ const formSchema = z
 export function SignUpForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const currentUser = Cookies.get("user")
+
+  useEffect(() => {
+    if (currentUser) {
+      router.push("/")
+    } else {
+      router.push("/signup")
+    }
+  },[])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

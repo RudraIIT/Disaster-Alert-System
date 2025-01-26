@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -11,13 +11,15 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/components/providers/auth-provider"
+import axios from "axios"
+import Cookies from "js-cookie"
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
+  username: z.string().min(3, {
+    message: "Username must be at least 3 characters.",
   }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
   }),
 })
 
@@ -25,11 +27,20 @@ export function LoginForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+  const currentUser = Cookies.get('user');
+
+  useEffect(() => {
+    if(currentUser) {
+      router.push("/")
+    } else {
+      router.push("/login")
+    }
+  },[])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   })
@@ -37,15 +48,18 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
     try {
       // Here you would typically make an API call to authenticate
-      console.log(values)
-      login()
-      toast.success("Successfully logged in!")
-      router.push("/")
+      const response = await axios.post('http://localhost:5000/login', {
+        username: values.username,
+        password: values.password,
+      })
+      if(response.status === 200) {
+        Cookies.set("user",values.username);
+        setIsLoading(false)
+        router.push("/")
+        toast.success("Login successful")
+      }
     } catch (error) {
       toast.error("Something went wrong. Please try again.")
     } finally {
@@ -58,12 +72,12 @@ export function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="email"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email" type="email" {...field} />
+                <Input placeholder="Enter your username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
