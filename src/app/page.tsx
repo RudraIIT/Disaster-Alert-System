@@ -3,15 +3,12 @@ import AlertMap from "@/components/alert-map"
 import CreateAlert from "@/components/create-alert"
 import EmergencyContacts from "@/components/emergency-contacts"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SiteHeader } from "@/components/site-header"
 
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex h-16 items-center px-16">
-          <h1 className="text-2xl font-bold">Disaster Alert System</h1>
-        </div>
-      </header>
+      <SiteHeader />
       <main className="container mx-auto py-4 px-20">
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-6">
