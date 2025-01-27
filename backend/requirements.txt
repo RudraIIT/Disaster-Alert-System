@@ -6,3 +6,5 @@ python-engineio
 python-socketio
 werkzeug
 flask-migrate
+pytest
+flask-testing
