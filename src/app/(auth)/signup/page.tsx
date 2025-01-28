@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { SignUpForm } from "@/components/auth/signup-form"
 
+
 export const metadata: Metadata = {
   title: "Sign Up - Disaster Alert System",
   description: "Create an account for the Disaster Alert System",
