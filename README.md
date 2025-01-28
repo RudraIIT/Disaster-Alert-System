@@ -6,7 +6,11 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-![System Architecture](public/architecture.png)
+## System Architecture
+![System Architecture](public/architect-1.png)
+<br><br>
+![System Architecture](public/architect-2.png)
+---
 
 ## 👥 Team Members
 | Name                | Role                |
@@ -55,7 +59,7 @@ The Disaster Alert System is a Flask-based application designed to provide real-
 ## 📸 Screenshots
 | Component          | Preview             |
 |--------------------|---------------------|
-| API Response       | ![API Response](assets/api_response.png) |
+| API Response       | ![API Response](public/api_response.png) |
 | Testing            | ![Testing 1](public/test1.jpeg) ![Testing 2](public/test2.jpeg) ![Testing 3](public/test3.jpeg) |
 | System Dashboard   | ![Dashboard 1](public/dashboard1.jpeg) ![Dashboard 2](public/dashboard2.jpeg) ![Dashboard 3](public/dashboard3.jpeg) |
 
