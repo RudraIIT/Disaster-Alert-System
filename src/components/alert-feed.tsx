@@ -76,14 +76,15 @@ export default function AlertFeed() {
     const getNotifications = async () => {
       try {
         const response = await axios.get('http://localhost:5000/notifications');
+        console.log(response);
         setAlerts_arr(response.data);
       } catch (error) {
         console.log(error);
       }
     }
-
+  
     getNotifications();
-  },[alerts_arr])
+  },[alerts_arr.length]);
 
   return (
     <div className="rounded-lg border bg-card">

@@ -1,6 +1,7 @@
 "use client"
 import { createContext,useContext,useState,useEffect } from "react";
 import io, {Socket} from 'socket.io-client';
+import Cookies from "js-cookie";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -18,9 +19,15 @@ export const useSocketContext = () => {
 
 export const SocketProvider = ({children} : {children: React.ReactNode}) => {
     const [socket, setSocket] = useState<Socket | null>(null);
-
+    const user_id = Cookies.get('user');
+    // console.log(user_id);
     useEffect(() => {
-        const newSocket = io('http://127.0.0.1:5000');
+        const newSocket = io('http://127.0.0.1:5000',{
+            withCredentials: true,
+            query: {
+                user_id : user_id
+            }
+        });
         setSocket(newSocket);
         return () => {
             newSocket.close();

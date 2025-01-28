@@ -11,11 +11,14 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
+import axios from "axios";
+import { toast } from "sonner";
 
 type markers = {
   position: number[];
-  popup: string;
-  status: string;
+  popup: string | "This is a test location";
+  status: string | "low" | "medium" | "high";
+  key: string;
 }[];
 
 interface MapProps {
@@ -98,12 +101,33 @@ const Map: React.FC<MapProps> = ({ className }) => {
   useEffect(() => {
     const fetchMarkers = async () => {
       // fetch alert danger locations and set it in markers
+      const response = await axios.get('http://localhost:5000/markers');
+      // response is like [id,latitude,longitude]
+      const data = response.data;
+      const markers = data.map((marker: any) => {
+        return {
+          position: [marker['latitude'], marker['longitude']],
+          popup: marker['description'],
+          status: marker['status'],
+          key : marker['id']
+        }
+      });
+      setMarkers(markers);
     }
     fetchMarkers();
   }, []);
   useEffect(() => {
     const addMarker = (data : any) => {
-      setMarkers(prev => [...prev, data.marker]);
+      const marker = {
+        position: data.position,
+        popup: data.popup,
+        status: data.status,
+        key: data.key
+      };
+      
+      toast.warning("New Alert: " + data.popup);
+      setMarkers(prev => [...prev, marker]);
+      console.log(markers);
     }
     socket?.on("alert", addMarker);
     return () => {
@@ -144,7 +168,7 @@ const Map: React.FC<MapProps> = ({ className }) => {
     }
     setCenter([markers[0].position[0], markers[0].position[1]]);
     setRerender(prev => !prev);
-  },[markers?.length]);
+  },[markers]);
   return (
     <MapContainer
     key={rerender.toString()}
@@ -158,8 +182,8 @@ const Map: React.FC<MapProps> = ({ className }) => {
         chunkedLoading
         iconCreateFunction={createCustomClusterIcon}
       >
-        {markers && markers.map(({ position, popup, status }) => {
-          return <Marker key={position.toString()} position={position as LatLngTuple} icon={status == "low" ? customIconLow : status == "medium" ? customIconMedium : customIconHigh}>
+        {markers && markers.map(({ position, popup, status, key }) => {
+          return <Marker key={key} position={position as LatLngTuple} icon={status == "low" ? customIconLow : status == "medium" ? customIconMedium : customIconHigh}>
             <Popup>{popup}</Popup>
           </Marker>
         })}

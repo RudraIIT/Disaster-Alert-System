@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/user-menu"
 import { useAuth } from "@/components/providers/auth-provider"
+import Cookies from "js-cookie"
 
 export function SiteHeader() {
   const { isAuthenticated } = useAuth()
@@ -19,11 +20,8 @@ export function SiteHeader() {
             <UserMenu />
           ) : (
             <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup">Sign Up</Link>
+              <Button asChild onClick={ () => Cookies.remove('user') }>
+                <Link href="/login">Logout</Link>
               </Button>
             </>
           )}

@@ -11,17 +11,15 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import Cookies from "js-cookie"
+import axios from "axios"
 
 const formSchema = z
   .object({
     name: z.string().min(2, {
       message: "Name must be at least 2 characters.",
     }),
-    email: z.string().email({
-      message: "Please enter a valid email address.",
-    }),
-    password: z.string().min(8, {
-      message: "Password must be at least 8 characters.",
+    password: z.string().min(6, {
+      message: "Password must be at least 6 characters.",
     }),
     confirmPassword: z.string(),
   })
@@ -47,7 +45,6 @@ export function SignUpForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      email: "",
       password: "",
       confirmPassword: "",
     },
@@ -56,14 +53,20 @@ export function SignUpForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     try {
       // Here you would typically make an API call to create the account
-      console.log(values)
-      toast.success("Account created successfully!")
-      router.push("/login")
+      const response = await axios.post("http://localhost:5000/signup", {
+        username: values.name,
+        password: values.password,
+      });
+      
+      if(response.status === 201) {
+        Cookies.set("user", response.data.user_id);
+        setIsLoading(false);
+        toast.success("Account created successfully.");
+        router.push("/");
+      }
     } catch (error) {
       toast.error("Something went wrong. Please try again.")
     } finally {
@@ -82,19 +85,6 @@ export function SignUpForm() {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

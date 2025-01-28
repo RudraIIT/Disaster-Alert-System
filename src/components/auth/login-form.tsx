@@ -55,7 +55,7 @@ export function LoginForm() {
         password: values.password,
       })
       if(response.status === 200) {
-        Cookies.set("user",values.username);
+        Cookies.set("user",response.data.user_id);
         setIsLoading(false)
         router.push("/")
         toast.success("Login successful")

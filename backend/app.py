@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 from flask_migrate import Migrate
 
@@ -11,9 +11,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000",manage_session=True)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
+user_locations = {}
 
 # User Model
 class User(db.Model):
@@ -37,6 +38,32 @@ class Alert(db.Model):
         self.severity = data.get('severity')
         self.region = data.get('region')
 
+class Marker(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+
+    def __init__(self, data):
+        self.latitude = data.get('latitude')
+        self.longitude = data.get('longitude')
+        self.description = data.get('description')
+        self.status = data.get('status')
+
+def haversine(lat1, lon1, lat2, lon2):
+    from math import radians, sin, cos, sqrt, atan2
+    R  = 6371.0
+
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
+
 @app.route('/')
 def index():
     print("Hello, World!")
@@ -56,20 +83,19 @@ def signup():
     new_user = User(username=username, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'Signup successful'}), 201
+    return jsonify({'message': 'Signup successful','user_id':new_user.id}), 201
 
 # API Route: Login
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
-    print(data)
     username = data.get('username')
     password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
         session['user_id'] = user.id
-        return jsonify({'message': 'Login successful'}), 200
+        return jsonify({'message': 'Login successful', 'user_id': user.id}), 200
     return jsonify({'message': 'Invalid credentials'}), 401
 
 # API Route: Get Notifications
@@ -88,27 +114,81 @@ def get_notifications():
         } 
         for alert in alerts
     ]
+
     return jsonify(alerts_data), 200
+
+@app.route('/markers', methods=['GET'])
+def get_markers():
+    markers = Marker.query.all()
+
+    markers_data = [
+        {
+            'id': marker.id,
+            'latitude': marker.latitude,
+            'longitude': marker.longitude,
+            'description': marker.description,
+            'status': marker.status
+        } 
+        for marker in markers
+    ]
+
+    return jsonify(markers_data), 200
 
 # WebSocket: Handle Connection
 @socketio.on('connect')
 def handle_connect():
     print("A client has connected.")
-    emit('connected', {'message': 'Connection successful'})
+    user_id = request.args.get('user_id')
+    print(f"User ID: {user_id}")
+    if user_id:
+        print(f"User {user_id} has connected.") 
+        join_room(user_id)
 
 # WebSocket: Send Notifications
 @socketio.on('send_notification')
 def handle_notification(data):
+    print("Received notification data: ", data)
+    latitude = user_locations.get(data.get('user'))[0]
+    longitude = user_locations.get(data.get('user'))[1]
     description = data.get('description')
-    print(f"Data : {data}")
-    if not description:
-        emit('error', {'description': 'Notification cannot be empty'}, broadcast=False)
+    severity = data.get('severity')
+    if not (latitude and longitude and description):
+        emit('error', {'message': 'Invalid data'}, broadcast=False)
         return
-
-    emit('notification', {'description': description}, broadcast=True)
+    
+    recipients = []
+    print(f"User Locations: {user_locations}")
+    print("Start recipients", recipients)
+    for user_id, (user_lat,user_lon) in user_locations.items():
+        distance =  haversine(latitude, longitude, user_lat, user_lon)
+        print(f"Distance between users: {distance}")
+        if distance <= 50:
+            recipients.append(user_id)
+    print(f"Recipients: {recipients}")
     new_alert = Alert(data)
-    db.session.add(new_alert)
+    for user_id in recipients:
+        emit('alert', {'position': [latitude, longitude], 'popup': description, 'status': severity}, room=user_id)
+        #add this to marker table
+        new_marker = Marker({
+            'latitude': latitude,
+            'longitude': longitude,
+            'description': description,
+            'status': severity
+        })
+        db.session.add(new_marker)
+        db.session.add(new_alert)
     db.session.commit()
+
+@socketio.on('location')
+def handle_location(data):
+    user_id = data.get('user')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    # print("User ID: new ", latitude, longitude)
+
+    if user_id and latitude and longitude:
+        user_locations[user_id] = (latitude, longitude)
+        print(f"Updated location for user {user_id}: {latitude}, {longitude}")
 
 # API Route: Logout
 @app.route('/logout', methods=['POST'])

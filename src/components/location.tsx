@@ -2,22 +2,29 @@
 
 import { useSocketContext } from "@/context/SocketContext";
 import { useEffect } from "react";
+import Cookies from "js-cookie";
 
 export const Location = () => {
-  const { socket } = useSocketContext()
+  const { socket } = useSocketContext();
+  const user = Cookies.get("user");
+
   useEffect(() => {
-    if (navigator.geolocation && socket) {
+    if (typeof window !== "undefined" && navigator.geolocation && socket) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          console.log('Latitude is :', latitude);
-          console.log('Longitude is :', longitude);
-          socket.emit('location', { latitude, longitude });
+          console.log("Latitude is:", latitude);
+          console.log("Longitude is:", longitude);
+          socket.emit("location", { user, latitude, longitude });
         },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
       );
     } else {
-      console.log('Geolocation is not supported by this browser.');
+      console.log("Geolocation is not supported by this browser.");
     }
-  }, [socket, navigator.geolocation])
+  }, [socket,user]);
+
   return null;
-}
+};

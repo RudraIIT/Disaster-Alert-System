@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { useSocketContext } from "@/context/SocketContext"
+import Cookies from "js-cookie"
 
 const formSchema = z.object({
   title: z.string().min(2).max(100),
@@ -31,10 +32,13 @@ export default function CreateAlert() {
   })
 
   const { socket } = useSocketContext()
+  const user = Cookies.get("user")
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if(socket) {
-      socket.emit('send_notification', values)
+      console.log('Clicked',values);
+      //send values and user
+      socket.emit("send_notification", { user, ...values });
     }
   }
 
