@@ -1,67 +1,134 @@
-# Disaster Alert System 🚨
+# Disaster Alert System 🌍🚨  
+**College:** Indian Institute of Technology (IIT) Mandi <br>
+**Academic Year:** 2025-2026 <br>
+**Mentor:** Prof. Varun Datt
 
-A comprehensive solution designed to provide real-time disaster alerts and facilitate effective communication during emergencies. This system is tailored to help authorities and individuals respond promptly to potential disasters, minimizing harm and enhancing disaster preparedness.
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-## 📋 Features
+![System Architecture](public/architecture.png)
 
-* **Real-time alerts:** Uses Socket.IO to push notifications to users in real-time.
-* **Alert creation:**  Authorized users can create new alerts with details such as title, description, type, severity, and region.
-* **Alert feed:** Displays active alerts with relevant information.
-* **Map visualization:** Includes a map component (placeholder) for displaying alert locations.
-* **Emergency contacts:** Provides a list of essential emergency contact numbers.
-* **User authentication:**  Supports user signup and login for secure access to alert creation features.
+## 👥 Team Members
+| Name                | Role                |
+|---------------------|---------------------|
+| Rudra Pratap Singh  | Documentation Specialist       |
+| Sushant Wayal       | Frontend Developer  |
+| Rudra Pratap        | Backend Developer & Tester   |
+| Shivam Jaiswal      | Project Manager          |
+| Ritam Dutta         | Quality Assurance Engineer   |
+| Badal Mandal         | Requirements Engineer  |
 
-## 🚀 Tech Stack
 
-* **Backend:** Flask (Python), SQLAlchemy, Flask-SocketIO, Flask-CORS
-* **Frontend:** Next.js (React), Tailwind CSS, Sonner (Toast notifications), Lucide React (Icons)
-* **Real-time communication:** Socket.IO
+## 📁 Table of Contents
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [Screenshots](#screenshots)
+4. [Workflow](#system-workflow)
+5. [Installation](#installation)
+6. [Configuration](#configuration)
+7. [Usage](#usage)
 
-## 📂 Project Structure
+## 📌 Project Overview
+The Disaster Alert System is a Flask-based application designed to provide real-time alerts and notifications for disaster management. It supports user authentication, alert creation, and broadcasting notifications to connected clients via WebSocket communication.
 
-```plaintext
-Disaster-Alert-System/
-├── /       # React.js frontend code
-├── backend/        # Backend code
-└── README.md       # Project documentation
+---
+
+**Key Objectives:**
+- Real-time alerts for natural disasters
+- Configurable alert thresholds
+- Location-based filtering
+- Reliable notification system
+
+## ✨ Features
+- **Core Functionality**
+  - 24/7 disaster monitoring
+  - Alerts (WebSocket)
+  - Geographic filtering (Lat/Long)
+  - Support for 5+ disaster types
+
+- **Technical Components**
+  - REST API integration
+  - Environment-based configuration
+  - Automated cron scheduling
+  - Detailed logging system
+
+## 📸 Screenshots
+| Component          | Preview             |
+|--------------------|---------------------|
+| API Response       | ![API Response](assets/api_response.png) |
+| Testing            | ![Testing 1](public/test1.jpeg) ![Testing 2](public/test2.jpeg) ![Testing 3](public/test3.jpeg) |
+| System Dashboard   | ![Dashboard 1](public/dashboard1.jpeg) ![Dashboard 2](public/dashboard2.jpeg) ![Dashboard 3](public/dashboard3.jpeg) |
+
+## 🔄 System Workflow
+```mermaid
+graph TD
+    A([Start]) --> B[Poll Alerts API]
+    B --> C{New Disaster Alert?}
+    C -->|No| B
+    C -->|Yes| D[Apply Location Filter]
+    D --> E[Check Severity Level]
+    E --> F{Meets Criteria?}
+    F -->|No| B
+    F -->|Yes| G[Broadcast Alert via WebSocket]
+    G --> H[Log Transaction]
+    H --> B
+    click B "https://developers.google.com/public-alerts" "Google Alerts API Docs"
+    click G "https://flask-socketio.readthedocs.io" "Flask-SocketIO Docs"
 ```
 
-## 🛠️ Setup and Installation
+## 💻 Installation
+### Prerequisites
+- Python 3.8+
+- Flask
+- Flask-SocketIO
 
-1. Clone the repository.
-    ```bash
-        git clone https://github.com/sushant-wayal/Disaster-Alert-System.git
-        cd Disaster-Alert-System
-    ```
-2. Backend Setup
-    - Navigate to the backend folder:
-        ```bash
-        cd backend
-        ```
-    - Install dependencies:
-        ```bash
-        pip install -r requirements.txt
-        ```
-    - Start the server:
-        ```bash
-        python app.py
-        ```
-3. Frontend Setup:
-    - Install dependencies:
-        ```bash
-        npm install
-        ```
-    - Start the development server:
-        ```bash
-        npm run dev
-        ```
+```bash
+# Clone repository
+git clone https://github.com/sushant-wayal/Disaster-Alert-System.git
+cd Disaster-Alert-System
 
-## Future Improvements
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-* Integrate a real-time map service (e.g., Google Maps, Mapbox) to display alert locations.
-* Implement more robust user roles and permissions.
-* Add support for multiple notification channels (e.g., SMS, email).
-* Enhance the UI/UX for better user experience.
+# Install dependencies
+pip install -r requirements.txt
+```
 
+## ⚙️ Configuration
+1. Create .env file:
+```bash
+SECRET_KEY=your_secret_key
+DATABASE_URI=sqlite:///disaster_alert.db
+SOCKETIO_MESSAGE_QUEUE=redis://localhost:6379
+```
 
-This project is a work in progress and contributions are welcome!
+2. Configure settings.yaml:
+```yaml
+location:
+  latitude: 18.5204
+  longitude: 73.8567
+  radius: 100  # km
+
+alert_preferences:
+  severity: [High, Severe]
+  disasters: [Earthquake, Flood]
+```
+
+## 🚀 Usage
+### Basic Command
+```bash
+python app.py
+```
+
+### Testing
+Run tests using pytest:
+```bash
+pytest
+```
+
+### Scheduled Execution
+```bash
+# Run every 5 minutes
+*/5 * * * * cd /path/to/project && venv/bin/python app.py
+```
