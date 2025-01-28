@@ -93,7 +93,12 @@ export default function AlertFeed() {
       </div>
       <ScrollArea className="h-[600px]">
         <div className="p-4 space-y-4">
-          {alerts_arr.map((alert) => (
+          {alerts_arr.length === 0 && (
+            <div className="text-muted-foreground text-center text-2xl">
+              No alerts to display
+            </div>
+          )}
+          {alerts_arr.length > 0 && alerts_arr.map((alert) => (
             <Alert key={alert.id} className="flex items-start space-x-4">
               <div className={`p-2 rounded-full ${getSeverityColor(alert.severity)}`}>{getAlertIcon(alert.type)}</div>
               <div className="flex-1 space-y-1">
