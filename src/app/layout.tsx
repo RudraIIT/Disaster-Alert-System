@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { SocketProvider } from '@/context/SocketContext'
 import { Toaster } from "sonner"
 import { AuthProvider } from "@/components/providers/auth-provider"
+import { Location } from '@/components/location'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       </head> */}
       <body className={inter.className}>
         <SocketProvider>
+          <Location />
           <AuthProvider>{children}</AuthProvider>
           <Toaster position="top-center" />
         </SocketProvider>
