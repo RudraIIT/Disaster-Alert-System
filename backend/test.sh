@@ -57,3 +57,8 @@ else
     echo "Error: requirements.txt not found. Exiting."
     exit 1
 fi
+
+if ! command -v pytest &>/dev/null; then
+    echo "Installing pytest..."
+    pip install pytest
+fi
