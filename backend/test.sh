@@ -6,22 +6,26 @@ set -e
 # Detect the operating system
 OS=$(uname -s)
 
-# Function to install Python venv on Ubuntu
+# Function to install Python 3.10 and venv on Ubuntu
 install_python_venv_ubuntu() {
-    if ! dpkg -s python3.10-venv &>/dev/null; then
-        echo "Installing python3.10-venv on Ubuntu..."
-        sudo apt update && sudo apt install -y python3.10-venv
+    if ! command -v python3.10 &>/dev/null; then
+        echo "Python 3.10 not found. Installing..."
+        sudo apt update
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository -y ppa:deadsnakes/ppa
+        sudo apt update
+        sudo apt install -y python3.10 python3.10-venv
     else
-        echo "python3.10-venv is already installed."
+        echo "Python 3.10 is already installed."
     fi
 }
 
-# Set Python version
+# Set Python version and install dependencies if on Linux
 if [ "$OS" = "Linux" ]; then
     PYTHON=python3.10
     install_python_venv_ubuntu
 elif [[ "$OS" =~ CYGWIN|MINGW|MSYS ]]; then
-    PYTHON=python
+    PYTHON=python  # Use default python on Windows
 else
     echo "Unsupported operating system: $OS"
     exit 1
@@ -47,6 +51,7 @@ fi
 # Install dependencies
 if [ -f "requirements.txt" ]; then
     echo "Installing Python dependencies..."
+    pip install --upgrade pip
     pip install -r requirements.txt
 else
     echo "Error: requirements.txt not found. Exiting."
