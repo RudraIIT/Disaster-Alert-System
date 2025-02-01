@@ -89,7 +89,11 @@ graph TD
 ```bash
 # Clone repository
 git clone https://github.com/sushant-wayal/Disaster-Alert-System.git
-cd Disaster-Alert-System
+#For running frontend
+npm install && npm run dev
+
+#For running the backend
+cd Disaster-Alert-System/backend
 
 # Create virtual environment
 python -m venv venv
@@ -128,11 +132,13 @@ python app.py
 ### Testing
 Run tests using pytest:
 ```bash
-pytest
+cd backend/tests
+pytest test_models.py
+pytest test_routes.py
+pytest test_websocket.py
 ```
 
 ### Scheduled Execution
 ```bash
-# Run every 5 minutes
-*/5 * * * * cd /path/to/project && venv/bin/python app.py
+source venv/bin/python app.py PORT_NO # PORT_NO can be 5000,5001,5002
 ```
