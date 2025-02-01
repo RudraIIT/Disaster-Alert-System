@@ -22,8 +22,9 @@ export const SocketProvider = ({children} : {children: React.ReactNode}) => {
     const user_id = Cookies.get('user');
     // console.log(user_id);
     useEffect(() => {
-        const newSocket = io('http://127.0.0.1:5000',{
+        const newSocket = io('http://127.0.0.1',{
             withCredentials: true,
+            transports: ['websocket'],
             query: {
                 user_id : user_id
             }

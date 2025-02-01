@@ -56,7 +56,7 @@ export function SignUpForm() {
 
     try {
       // Here you would typically make an API call to create the account
-      const response = await axios.post("http://localhost:5000/signup", {
+      const response = await axios.post("http://localhost:80/signup", {
         username: values.name,
         password: values.password,
       });

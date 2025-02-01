@@ -101,7 +101,7 @@ const Map: React.FC<MapProps> = ({ className }) => {
   useEffect(() => {
     const fetchMarkers = async () => {
       // fetch alert danger locations and set it in markers
-      const response = await axios.get('http://localhost:5000/markers');
+      const response = await axios.get('http://localhost:80/markers');
       // response is like [id,latitude,longitude]
       const data = response.data;
       const markers = data.map((marker: any) => {

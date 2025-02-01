@@ -8,3 +8,4 @@ werkzeug
 flask-migrate
 pytest
 flask-testing
+redis

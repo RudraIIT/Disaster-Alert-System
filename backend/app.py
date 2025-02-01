@@ -4,6 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 from flask_migrate import Migrate
+from threading import Thread
+import redis
+import sys
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -11,8 +15,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000",manage_session=True)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+socketio = SocketIO(app, cors_allowed_origins="*",manage_session=True,message_queue='redis://localhost:6379/0')
+CORS(app, resources={r"/*": {"origins": "*"}})
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 user_locations = {}
 
@@ -166,6 +171,17 @@ def handle_notification(data):
             recipients.append(user_id)
     print(f"Recipients: {recipients}")
     new_alert = Alert(data)
+
+    alert_data = {
+        'position': [latitude, longitude],
+        'popup': description,
+        'status': severity
+    }
+
+    serialized_data = json.dumps(alert_data)
+
+    r.publish('alerts', serialized_data)
+
     for user_id in recipients:
         emit('alert', {'position': [latitude, longitude], 'popup': description, 'status': severity}, room=user_id)
         #add this to marker table
@@ -190,6 +206,23 @@ def handle_location(data):
         user_locations[user_id] = (latitude, longitude)
         print(f"Updated location for user {user_id}: {latitude}, {longitude}")
 
+@socketio.on('message')
+def handle_message(data):
+    print("Received message: ", data)
+
+def listen_for_messages():
+    pubsub = r.pubsub()
+    pubsub.subscribe('alerts')
+
+    for message in pubsub.listen():
+        if message['type'] == 'message':
+            alert_data = json.loads(message['data'])
+            print(f"Received alert: {alert_data}")
+            socketio.emit('alert', alert_data)
+
+def start_redis_listener():
+    listen_for_messages()
+
 # API Route: Logout
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -201,6 +234,12 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         print("Database initialized.")
-    
-    # Run the app
-    socketio.run(app, debug=True, use_reloader=True, port=5000)
+
+    # Get port from command line argument (default to 5000)
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
+
+    # Run the app on the specified port
+    redis_thread = Thread(target=start_redis_listener)
+    redis_thread.daemon = True
+    redis_thread.start()
+    socketio.run(app, debug=True, use_reloader=False, port=port)
