@@ -191,10 +191,10 @@ alert_preferences:
   disasters: [Earthquake, Flood]
 ```
 
-## 🚀 Usage
+### 🚀 Usage
 ### Basic Command
 ```bash
-python app.py
+  python app.py PORT_NO # PORT_NO can be 5000,5001,5002
 ```
 
 ### Testing
