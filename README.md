@@ -90,6 +90,7 @@ graph TD
 # Clone repository
 git clone https://github.com/sushant-wayal/Disaster-Alert-System.git
 #For running frontend
+cd Disaster-Alert-System
 npm install && npm run dev
 
 #For running the backend
@@ -104,19 +105,86 @@ pip install -r requirements.txt
 ```
 
 ## ⚙️ Configuration
-1. Create .env file:
-```bash
-SECRET_KEY=your_secret_key
-DATABASE_URI=sqlite:///disaster_alert.db
-SOCKETIO_MESSAGE_QUEUE=redis://localhost:6379
-```
 
-2. Configure settings.yaml:
-```yaml
-location:
-  latitude: 18.5204
-  longitude: 73.8567
-  radius: 100  # km
+### 🏗️ Configure Nginx for Load Balancing
+
+Nginx can be used as a load balancer to distribute traffic among multiple servers. Follow the steps below to set it up:
+
+1. **Update and Install Nginx:**
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   sudo apt install nginx -y
+   sudo systemctl start nginx
+   sudo systemctl enable nginx
+   ```
+
+2. **Edit the Nginx Configuration File:**
+   Open the Nginx configuration file to define a load-balancing setup.
+   Add the contents of nginx.conf in backend directory to the file opened above.
+
+3. **Restart Nginx to Apply Changes:**
+   ```bash
+   sudo systemctl restart nginx
+   ```
+
+![Nginx Logo](https://upload.wikimedia.org/wikipedia/commons/c/c5/Nginx_logo.svg)
+
+---
+
+### 🐳 Configure Docker and Redis for Pub-Sub Architecture
+
+Redis can be used for a **publish-subscribe (pub-sub) messaging architecture**, where messages are broadcasted to multiple subscribers in real-time.
+
+1. **Install Required Dependencies:**
+   ```bash
+   sudo apt install -y ca-certificates curl gnupg
+   ```
+
+2. **Add Docker’s Official GPG Key:**
+   ```bash
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
+   sudo chmod a+r /etc/apt/keyrings/docker.asc
+   ```
+
+3. **Add Docker Repository:**
+   ```bash
+   echo \ 
+   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \ 
+   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   ```
+
+4. **Install Docker and Start the Service:**
+   ```bash
+   sudo apt update
+   sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   ```
+
+5. **Run Redis in a Docker Container:**
+   ```bash
+   sudo docker run -d --name redis-container -p 6379:6379 redis
+   ```
+
+6. **Verify Redis is Running:**
+   ```bash
+   sudo docker ps
+   ```
+
+   Connect to the Redis CLI inside the container:
+   ```bash
+   sudo docker exec -it redis-container redis-cli
+   ```
+   Run a test command:
+   ```bash
+   PING
+   ```
+   Expected output: `PONG`
+
+![Redis Logo](https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg)
+
+🚀 Now, your **Nginx load balancer** and **Redis pub-sub system** are configured and running!
 
 alert_preferences:
   severity: [High, Severe]
