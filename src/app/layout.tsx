@@ -22,13 +22,14 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head> */}
-      <body className={inter.className}>
-        <SocketProvider>
-          <Location />
-          <AuthProvider>{children}</AuthProvider>
-          <Toaster position="top-center" />
+      <body className={inter.className}> {/* SocketProvider ensures real-time WebSocket communication for updates */}
+        <SocketProvider>  {/* Location component handles user geolocation tracking for location-based alerts */}
+          <Location />      {/* AuthProvider manages authentication state and user access */}
+          <AuthProvider>{children}</AuthProvider>  {/* Toaster displays notifications (success, errors, warnings) at the top-center */}
+          <Toaster position="top-center" />  
         </SocketProvider>
       </body>
+
     </html>
   )
 }

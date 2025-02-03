@@ -57,6 +57,17 @@ class Marker(db.Model):
         self.status = data.get('status')
 
 def haversine(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great-circle distance between two points on the Earth 
+    using the Haversine formula.
+    
+    Parameters:
+    lat1, lon1 -- Latitude and Longitude of the first point in decimal degrees
+    lat2, lon2 -- Latitude and Longitude of the second point in decimal degrees
+
+    Returns:
+    Distance between the two points in kilometers.
+    """
     from math import radians, sin, cos, sqrt, atan2
     R  = 6371.0
 
@@ -152,6 +163,14 @@ def handle_connect():
 # WebSocket: Send Notifications
 @socketio.on('send_notification')
 def handle_notification(data):
+    """
+    Handles incoming notification data, determines recipients within a 50km radius, 
+    and emits alerts to them while storing relevant information in the database.
+
+    Parameters:
+    data (dict) -- Contains notification details such as 'user', 'description', and 'severity'
+    
+    """
     print("Received notification data: ", data)
     latitude = user_locations.get(data.get('user'))[0]
     longitude = user_locations.get(data.get('user'))[1]

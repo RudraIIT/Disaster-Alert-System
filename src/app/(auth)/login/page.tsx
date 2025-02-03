@@ -11,20 +11,22 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="w-full max-w-[400px]">
-      <Card className="w-full">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your Username and password to access the dashboard</CardDescription>
+    <div className="w-full max-w-[400px]"> {/* Container with a max width of 400px */}
+      <Card className="w-full"> {/* Card component to wrap the login form */}
+        <CardHeader className="space-y-1"> {/* Card header section */}
+          <CardTitle className="text-2xl">Login</CardTitle> {/* Title of the login card */}
+          <CardDescription>
+            Enter your Username and password to access the dashboard
+          </CardDescription> {/* Short description for users */}
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <LoginForm /> {/* Renders the LoginForm component */}
         </CardContent>
-        <CardFooter>
+        <CardFooter> {/* Footer section of the card */}
           <div className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Don&apos;t have an account?{" "} {/* Display sign-up prompt */}
             <Link href="/signup" className="text-primary hover:underline">
-              Sign up
+              Sign up {/* Link to the sign-up page */}
             </Link>
           </div>
         </CardFooter>
