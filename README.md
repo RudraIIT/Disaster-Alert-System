@@ -121,6 +121,8 @@ Nginx can be used as a load balancer to distribute traffic among multiple server
 2. **Edit the Nginx Configuration File:**
    Open the Nginx configuration file to define a load-balancing setup.
    Add the contents of nginx.conf in backend directory to the file opened above.
+   ```bash
+   sudo nano /etc/nginx/nginx.conf
 
 3. **Restart Nginx to Apply Changes:**
    ```bash
