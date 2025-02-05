@@ -75,7 +75,7 @@ export default function AlertFeed() {
   useEffect(() => {
     const getNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/notifications');
+        const response = await axios.get('http://localhost:80/notifications');
         console.log(response);
         setAlerts_arr(response.data);
       } catch (error) {
